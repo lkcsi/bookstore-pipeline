@@ -2,7 +2,6 @@ pipeline {
     agent any
     environment {
         AUTH_SECRET=credentials('auth-secret')
-        USERS_REPOSITORY='SQL'
         BOOKS_REPOSITORY='SQL'
         BOOKS_DB_HOST='books-db-1'
         BOOKS_DB_PASSWORD=credentials('books-db-password')
@@ -13,16 +12,24 @@ pipeline {
         stage("build") {
             steps {
                 echo 'build'
-                dir('app') {
+                script {
+                    try {
+                        sh 'docker stop $(docker ps -a -q)'
+                        sh 'docker rm $(docker ps -a -q)'
+                    } catch (err) {
+                        echo err
+                    }                    
+                }
+                dir('api') {
                     git branch: 'main', url: 'https://github.com/lkcsi/bookstore.git'
                     script {
-                        try {
-                            sh 'docker stop $(docker ps -a -q)'
-                            sh 'docker rm $(docker ps -a -q)'
-                        } catch (err) {
-                            echo 'No probs'
-                        }
-                        echo "${AUTH_ENABLED}"
+                        sh 'docker compose build'
+                        sh 'docker compose up -d'
+                    }
+                }
+                dir('front') {
+                    git branch: 'main', url: 'https://github.com/lkcsi/bookstore-front.git'
+                    script {
                         sh 'docker compose build'
                         sh 'docker compose up -d'
                     }
@@ -35,7 +42,7 @@ pipeline {
             }
             
         }
-        stage("test") {
+        stage("api-test") {
             environment {
                 BOOK_USER='test'
                 PASSWORD='password'
