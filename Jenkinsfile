@@ -8,6 +8,7 @@ pipeline {
         BOOKS_DB_PASSWORD=credentials('books-db-password')
         BOOKS_DB_PORT=3306
         BOOKS_API_PORT=8081
+        BOOKS_FRONT_PORT=8082
     }
     stages {
         stage("build") {
