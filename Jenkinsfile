@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         AUTH_SECRET=credentials('auth-secret')
+        API_KEY=credentials('api-key')
         BOOKS_REPOSITORY='SQL'
         BOOKS_DB_HOST='books-db-1'
         BOOKS_DB_PASSWORD=credentials('books-db-password')
